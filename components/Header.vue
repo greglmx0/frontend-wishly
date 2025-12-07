@@ -10,14 +10,12 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <button class="rounded-lg px-4 py-2 text-gray-700 transition-colors hover:text-gray-900 hover:shadow-md">
-            Se connecter
-          </button>
-          <button
-            class="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 text-white shadow-sm transition-all hover:from-purple-600 hover:to-pink-600 hover:shadow-md"
-          >
-            Créer un compte
-          </button>
+          <WishlyButton variant="ghost" href="/login">
+            <span>Se connecter</span>
+          </WishlyButton>
+          <WishlyButton variant="primary" href="/register">
+            <span>Créer un compte</span>
+          </WishlyButton>
         </div>
       </div>
     </div>
@@ -26,4 +24,5 @@
 
 <script setup lang="ts">
 import WishlyIcon from '~/components/WishlyIcon.vue'
+import WishlyButton from './input/WishlyButton.vue'
 </script>
