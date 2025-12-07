@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto flex h-screen items-center justify-center px-4">
     <div class="flex w-full max-w-md flex-col justify-center gap-4">
-      <h1 class="text-center text-3xl font-semibold text-gray-900">Connexion</h1>
+      <h1 class="text-center text-3xl font-semibold text-gray-900">Inscription</h1>
 
       <div class="mt-4 flex flex-col justify-center gap-4">
         <WishlyInput
@@ -23,14 +23,24 @@
           @blur="validatePassword"
         />
 
+        <WishlyInput
+          v-model="confirmPassword"
+          type="password"
+          label="Confirmer le mot de passe :"
+          placeholder="Entrez votre mot de passe"
+          autocomplete="current-password"
+          :error="passwordError"
+          @blur="validatePassword"
+        />
+
         <div class="text-sm text-gray-500">
-          <a href="/register" class="flex justify-end font-medium text-purple-600 hover:text-purple-500">
-            Pas encore de compte ?
+          <a href="/login" class="flex justify-end font-medium text-purple-600 hover:text-purple-500">
+            Déjà un compte ?
           </a>
         </div>
       </div>
-      <WishlyButton class="mt-2" :disabled="!isFormValid" @click="onLogin">
-        <p class="font-medium">Se connecter</p>
+      <WishlyButton class="mt-2" :disabled="!isFormValid" @click="onRegister">
+        <p class="font-medium">S'inscrire</p>
         <WishlyIcon name="line-md:login" size="24" class="text-white" />
       </WishlyButton>
     </div>
@@ -47,6 +57,7 @@ import type { Ref, ComputedRef } from 'vue'
 
 const email: Ref<string> = ref('')
 const password: Ref<string> = ref('')
+const confirmPassword: Ref<string> = ref('')
 const emailError: Ref<string | null> = ref(null)
 const passwordError: Ref<string | null> = ref(null)
 
@@ -72,23 +83,39 @@ const validatePassword: () => void = () => {
   passwordError.value = passwordRegex.test(password.value)
     ? null
     : 'Le mot de passe doit contenir au moins 8 caractères avec au moins une lettre et un chiffre.'
+
+  if (password.value !== confirmPassword.value) {
+    passwordError.value = 'Les mots de passe ne correspondent pas.'
+  }
 }
 
 const isFormValid: ComputedRef<boolean> = computed(() => {
   // Re-check to keep button state in sync
   const okEmail: boolean = emailRegex.test(email.value)
-  const okPass: boolean = passwordRegex.test(password.value)
+  const okPass: boolean = passwordRegex.test(password.value) && password.value === confirmPassword.value
   return okEmail && okPass && !emailError.value && !passwordError.value
 })
 
 /**
- * Handle login action
- * @return {void}
+ * Handle register action
+ * @return {Promise<void>}
  */
-const onLogin: () => void = () => {
+const onRegister: () => Promise<void> = async (): Promise<void> => {
   validateEmail()
   validatePassword()
   if (!isFormValid.value) return
-  console.log('Login with', { email: email.value, password: password.value })
+  try {
+    const response: any = await $fetch('/api/register', {
+      method: 'POST',
+      body: {
+        email: email.value,
+        password: password.value,
+      },
+    })
+    console.log('Registered with', { email: email.value, password: password.value })
+    console.log('response:', response)
+  } catch (error) {
+    console.error('Registration failed:', error)
+  }
 }
 </script>

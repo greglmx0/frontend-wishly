@@ -12,6 +12,7 @@
         :disabled="disabled"
         :required="required"
         :autocomplete="autocomplete"
+        :aria-invalid="!!error"
         :class="inputClasses"
         @input="onInput"
         @focus="$emit('focus', $event)"
