@@ -67,12 +67,15 @@ jobs:
           overwrite: true
 
       - name: Restart Docker containers
+        env:
+          NUXT_PUBLIC_API_BASE_URL: ${{ secrets.NUXT_PUBLIC_API_BASE_URL }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
+          envs: NUXT_PUBLIC_API_BASE_URL
           script: |
             cd /var/www/html/frontend-wishly
             docker compose -f docker-compose.prod.yml down

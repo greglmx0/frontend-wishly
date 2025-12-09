@@ -57,8 +57,8 @@ import { useToast } from '~/composables/useToast'
 const { login, clearError } = useAuth()
 const { success, error: errorToast } = useToast()
 
-const email: Ref<string> = ref('a@b.com')
-const password: Ref<string> = ref('77GreG77')
+const email: Ref<string> = ref('')
+const password: Ref<string> = ref('')
 const emailError: Ref<string | null> = ref(null)
 const passwordError: Ref<string | null> = ref(null)
 
