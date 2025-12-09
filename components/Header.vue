@@ -1,32 +1,35 @@
 <template>
   <header class="sticky top-0 z-50 border-b border-gray-200 bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between">
+    <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+      <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
         <div class="flex items-center gap-2">
           <div class="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-2">
             <WishlyIcon name="iconoir:gift" size="32" class="text-white" />
           </div>
-          <span class="text-xl text-gray-900">Wishly</span>
+          <span class="text-lg text-gray-900 sm:text-xl">Wishly</span>
         </div>
-
-        <div class="flex items-center gap-3">
-          <!-- Authenticated state -->
-          <div v-if="isAuthenticated" class="flex items-center gap-4">
-            <span class="text-sm font-medium text-gray-700">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div v-if="isAuthenticated" class="flex flex-wrap items-center gap-2 sm:gap-4">
+            <span class="hidden text-xs font-medium text-gray-700 sm:inline sm:text-sm">
               Bonjour, <span class="text-purple-600">{{ userEmail }}</span>
             </span>
-            <WishlyButton variant="ghost" size="sm" @click="onLogout">
-              <span>Déconnexion</span>
-            </WishlyButton>
+            <div class="flex items-center gap-2">
+              <WishlyButton variant="ghost" size="sm" @click="onLogout">
+                <span class="hidden sm:inline">Déconnexion</span>
+                <WishlyIcon name="material-symbols:logout-rounded" size="20" class="text-gray-700" />
+              </WishlyButton>
+            </div>
           </div>
 
           <!-- Unauthenticated state -->
-          <div v-else class="flex items-center gap-3">
-            <WishlyButton variant="ghost" href="/login">
-              <span>Se connecter</span>
+          <div v-else class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <WishlyButton variant="ghost" size="sm" href="/login">
+              <span class="hidden sm:inline">Se connecter</span>
+              <WishlyIcon name="line-md:login" size="20" class="text-gray-700 sm:hidden" />
             </WishlyButton>
-            <WishlyButton variant="primary" href="/register">
-              <span>Créer un compte</span>
+            <WishlyButton variant="primary" size="sm" href="/register">
+              <span class="hidden sm:inline">Créer un compte</span>
+              <WishlyIcon name="material-symbols:person-add-rounded" size="20" class="text-white sm:hidden" />
             </WishlyButton>
           </div>
         </div>
