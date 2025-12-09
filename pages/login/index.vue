@@ -29,7 +29,15 @@
           </a>
         </div>
       </div>
-      <WishlyButton class="mt-2" :disabled="!isFormValid" @click="onLogin">
+      <WishlyButton
+        class="mt-2"
+        :disabled="!isFormValid"
+        @click="onLogin"
+        :loading="loading"
+        variant="primary"
+        size="lg"
+        type="submit"
+      >
         <p class="font-medium">Se connecter</p>
         <WishlyIcon name="line-md:login" size="24" class="text-white" />
       </WishlyButton>
@@ -38,17 +46,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import WishlyIcon from '~/components/WishlyIcon.vue'
-import WishlyInput from '~/components/WishlyInput.vue'
-import WishlyButton from '~/components/input/WishlyButton.vue'
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
+import WishlyIcon from '~/components/WishlyIcon.vue'
+import WishlyInput from '~/components/input/WishlyInput.vue'
+import WishlyButton from '~/components/input/WishlyButton.vue'
+import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
 
-const email: Ref<string> = ref('')
-const password: Ref<string> = ref('')
+const { login, clearError } = useAuth()
+const { success, error: errorToast } = useToast()
+
+const email: Ref<string> = ref('a@b.com')
+const password: Ref<string> = ref('77GreG77')
 const emailError: Ref<string | null> = ref(null)
 const passwordError: Ref<string | null> = ref(null)
+
+const loading: Ref<boolean> = ref(false)
 
 const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -64,6 +78,7 @@ const validateEmail: () => void = () => {
     ? null
     : 'Veuillez entrer une adresse e-mail valide (ex: matheo@example.com).'
 }
+
 /**
  * Validate password format
  * @return {void}
@@ -85,10 +100,32 @@ const isFormValid: ComputedRef<boolean> = computed(() => {
  * Handle login action
  * @return {void}
  */
-const onLogin: () => void = () => {
+const onLogin: () => Promise<void> = async (): Promise<void> => {
   validateEmail()
   validatePassword()
   if (!isFormValid.value) return
-  console.log('Login with', { email: email.value, password: password.value })
+
+  try {
+    loading.value = true
+    clearError()
+    const result: any = await login(email.value, password.value)
+
+    if (result.success) {
+      success('Connexion réussie! Redirection en cours...', 1500)
+      setTimeout(() => {
+        navigateTo('/')
+      }, 1500)
+    } else {
+      errorToast(result.error || 'Erreur de connexion', 5000)
+    }
+  } catch (err: any) {
+    errorToast(err.message || 'Erreur de connexion', 5000)
+  } finally {
+    loading.value = false
+  }
 }
+
+onMounted(() => {
+  clearError()
+})
 </script>

@@ -29,8 +29,8 @@
           label="Confirmer le mot de passe :"
           placeholder="Entrez votre mot de passe"
           autocomplete="current-password"
-          :error="passwordError"
-          @blur="validatePassword"
+          :error="confirmPasswordError"
+          @blur="validateConfirmPassword"
         />
 
         <div class="text-sm text-gray-500">
@@ -39,7 +39,14 @@
           </a>
         </div>
       </div>
-      <WishlyButton class="mt-2" :disabled="!isFormValid" @click="onRegister">
+      <WishlyButton
+        class="mt-2"
+        :disabled="!isFormValid"
+        :loading="loading"
+        @click="onRegister"
+        :error="buttonError || emailError || passwordError || confirmPasswordError"
+        variant="primary"
+      >
         <p class="font-medium">S'inscrire</p>
         <WishlyIcon name="line-md:login" size="24" class="text-white" />
       </WishlyButton>
@@ -50,16 +57,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
-import WishlyInput from '~/components/WishlyInput.vue'
+import WishlyInput from '~/components/input/WishlyInput.vue'
 import WishlyButton from '~/components/input/WishlyButton.vue'
 import { computed } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
 
-const email: Ref<string> = ref('')
-const password: Ref<string> = ref('')
-const confirmPassword: Ref<string> = ref('')
+const { register, clearError } = useAuth()
+const { success, error: errorToast } = useToast()
+
+const email: Ref<string> = ref('a@b.com')
+const password: Ref<string> = ref('77GreG77')
+const confirmPassword: Ref<string> = ref('77GreG77')
+const buttonError: Ref<string | null> = ref(null)
 const emailError: Ref<string | null> = ref(null)
 const passwordError: Ref<string | null> = ref(null)
+const confirmPasswordError: Ref<string | null> = ref(null)
+
+const loading: Ref<boolean> = ref(false)
 
 const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -83,17 +97,24 @@ const validatePassword: () => void = () => {
   passwordError.value = passwordRegex.test(password.value)
     ? null
     : 'Le mot de passe doit contenir au moins 8 caractères avec au moins une lettre et un chiffre.'
+}
 
-  if (password.value !== confirmPassword.value) {
-    passwordError.value = 'Les mots de passe ne correspondent pas.'
-  }
+/**
+ * Validate confirm password format
+ * @return {void}
+ */
+const validateConfirmPassword: () => void = () => {
+  confirmPasswordError.value = passwordRegex.test(confirmPassword.value)
+    ? null
+    : 'Le mot de passe doit contenir au moins 8 caractères avec au moins une lettre et un chiffre.'
 }
 
 const isFormValid: ComputedRef<boolean> = computed(() => {
-  // Re-check to keep button state in sync
   const okEmail: boolean = emailRegex.test(email.value)
-  const okPass: boolean = passwordRegex.test(password.value) && password.value === confirmPassword.value
-  return okEmail && okPass && !emailError.value && !passwordError.value
+  const okPass: boolean = passwordRegex.test(password.value)
+  const okConfirmPass: boolean = passwordRegex.test(confirmPassword.value)
+
+  return okEmail && okPass && okConfirmPass
 })
 
 /**
@@ -103,19 +124,38 @@ const isFormValid: ComputedRef<boolean> = computed(() => {
 const onRegister: () => Promise<void> = async (): Promise<void> => {
   validateEmail()
   validatePassword()
-  if (!isFormValid.value) return
-  try {
-    const response: any = await $fetch('/api/register', {
-      method: 'POST',
-      body: {
-        email: email.value,
-        password: password.value,
-      },
-    })
-    console.log('Registered with', { email: email.value, password: password.value })
-    console.log('response:', response)
-  } catch (error) {
-    console.error('Registration failed:', error)
+  validateConfirmPassword()
+
+  if (confirmPassword.value !== password.value) {
+    buttonError.value = 'Les mots de passe ne correspondent pas.'
+    return
+  } else {
+    buttonError.value = null
   }
+
+  if (!isFormValid.value) return
+
+  try {
+    loading.value = true
+    clearError()
+    const result: any = await register(email.value, password.value)
+
+    if (result.success) {
+      success('Connexion réussie! Redirection en cours...', 1500)
+      setTimeout(() => {
+        navigateTo('/')
+      }, 1500)
+    } else {
+      errorToast(result.error || 'Erreur de connexion', 5000)
+    }
+  } catch (err: any) {
+    errorToast(err.message || 'Erreur de connexion', 5000)
+  } finally {
+    loading.value = false
+  }
+
+  onMounted(() => {
+    clearError()
+  })
 }
 </script>

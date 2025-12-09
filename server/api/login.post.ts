@@ -3,7 +3,7 @@ export default defineEventHandler<any>(async (event): Promise<any> => {
   const userData = await readBody(event)
 
   try {
-    const response: any = await $fetch(`${config.public.apiBaseUrl}/api/register`, {
+    const response = await $fetch(`${config.public.apiBaseUrl}/api/login`, {
       method: 'POST',
       body: userData,
     })
@@ -12,7 +12,7 @@ export default defineEventHandler<any>(async (event): Promise<any> => {
   } catch (error: any) {
     throw createError({
       statusCode: error.status || 500,
-      statusMessage: error.data?.message || 'Registration failed',
+      statusMessage: error.data?.message || 'Login failed',
     })
   }
 })
