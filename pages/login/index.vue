@@ -1,5 +1,11 @@
 <template>
-  <div class="mx-auto flex h-screen items-center justify-center px-4">
+  <div class="mx-auto mt-4 flex w-full max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+    <WishlyButton variant="ghost" size="sm" href="/">
+      <WishlyIcon name="material-symbols:arrow-back-rounded" size="20" class="text-gray-700" />
+      <span class="ml-2 text-gray-700">Retour à l'accueil</span>
+    </WishlyButton>
+  </div>
+  <div class="mx-auto flex h-[85vh] items-center justify-center px-4">
     <div class="flex w-full max-w-md flex-col justify-center gap-4">
       <h1 class="text-center text-3xl font-semibold text-gray-900">Connexion</h1>
 
