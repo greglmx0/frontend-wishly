@@ -10,12 +10,25 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <WishlyButton variant="ghost" href="/login">
-            <span>Se connecter</span>
-          </WishlyButton>
-          <WishlyButton variant="primary" href="/register">
-            <span>Créer un compte</span>
-          </WishlyButton>
+          <!-- Authenticated state -->
+          <div v-if="isAuthenticated" class="flex items-center gap-4">
+            <span class="text-sm font-medium text-gray-700">
+              Bonjour, <span class="text-purple-600">{{ userEmail }}</span>
+            </span>
+            <WishlyButton variant="ghost" size="sm" @click="onLogout">
+              <span>Déconnexion</span>
+            </WishlyButton>
+          </div>
+
+          <!-- Unauthenticated state -->
+          <div v-else class="flex items-center gap-3">
+            <WishlyButton variant="ghost" href="/login">
+              <span>Se connecter</span>
+            </WishlyButton>
+            <WishlyButton variant="primary" href="/register">
+              <span>Créer un compte</span>
+            </WishlyButton>
+          </div>
         </div>
       </div>
     </div>
@@ -23,6 +36,28 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
 import WishlyButton from './input/WishlyButton.vue'
+import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
+
+const { user, isAuthenticated, logout, initializeAuth } = useAuth()
+const { success } = useToast()
+
+const userEmail: ComputedRef<string> = computed(() => user.value?.email || '')
+
+/**
+ * Handle logout action
+ * @return {void}
+ */
+const onLogout: () => void = () => {
+  logout()
+  success('Vous avez été déconnecté', 1500)
+  navigateTo('/login')
+}
+
+onMounted(() => {
+  initializeAuth()
+})
 </script>
