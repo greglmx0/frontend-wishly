@@ -1,35 +1,46 @@
 <template>
-  <NuxtLink
-    v-if="props.href"
-    :to="props.href"
-    :class="[baseClasses, sizeClasses, variantClasses, blockClasses, iconOnlyClasses]"
-    @click="onClick"
+  <component
+    :is="isLink ? NuxtLink : 'button'"
+    v-bind="bindAttrs"
+    :aria-busy="loading ? 'true' : 'false'"
+    :class="[baseClasses, sizeClasses, variantClasses, blockClasses, iconOnlyClasses, loading ? 'cursor-wait' : '']"
+    @click="onClickHandler"
   >
-    <span v-if="loading" class="inline-flex items-center gap-2">
-      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-      <span class="sr-only">Loading</span>
+    <span class="relative inline-flex items-center gap-2">
+      <span
+        v-if="loading"
+        class="absolute left-0 right-0 mx-auto h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+      ></span>
+      <!-- Keep original content to preserve width -->
+      <span :class="loading ? 'opacity-0' : ''">
+        <div class="flex-raw flex">
+          <slot />
+        </div>
+      </span>
     </span>
-    <slot />
-  </NuxtLink>
-  <div
-    v-else
-    :href="props.href || undefined"
-    :disabled="disabled || loading"
-    :class="[baseClasses, sizeClasses, variantClasses, blockClasses, iconOnlyClasses]"
-    @click="onClick"
-  >
-    <span v-if="loading" class="inline-flex items-center gap-2">
-      <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
-      <span class="sr-only">Loading</span>
-    </span>
-    <slot />
+  </component>
+  <div v-if="error" class="mt-1 text-sm text-red-600">
+    {{ error }}
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { NuxtLink } from '#components'
 import type { ComputedRef } from 'vue'
-// import WishlyIcon from '../WishlyIcon.vue'
+
+const isLink: ComputedRef<boolean> = computed(() => !!props.href)
+
+const bindAttrs: ComputedRef<Record<string, unknown>> = computed(() => {
+  if (isLink.value) {
+    return { to: props.href }
+  }
+  return { type: props.type, disabled: props.disabled || props.loading }
+})
+
+const onClickHandler: ComputedRef<((ev: MouseEvent) => void) | undefined> = computed(() =>
+  isLink.value ? undefined : onClick,
+)
 
 /**
  * Variant type for button styles.
@@ -55,6 +66,8 @@ type ButtonType = 'button' | 'submit' | 'reset'
  * @property {Variant} variant - The variant style of the button.
  * @property {Size} size - The size of the button.
  * @property {string | null} href - The URL for link buttons.
+ * @property {ButtonType} type - The HTML button type.
+ * @property {string | null} error - The error message for the input.
  * @property {boolean} disabled - Whether the button is disabled.
  * @property {boolean} loading - Whether the button is in a loading state.
  * @property {boolean} block - Whether the button should take full width.
@@ -64,6 +77,8 @@ type Props = {
   variant: Variant
   size: Size
   href: string | null
+  type: ButtonType
+  error: string | null
   disabled: boolean
   loading: boolean
   block: boolean
@@ -76,6 +91,7 @@ const props: Props = withDefaults(
     size?: Size
     type?: ButtonType
     href?: string | null
+    error?: string | null
     disabled?: boolean
     loading?: boolean
     block?: boolean
@@ -85,6 +101,7 @@ const props: Props = withDefaults(
     variant: 'primary',
     size: 'md',
     href: null,
+    error: null,
     disabled: false,
     loading: false,
     block: false,
