@@ -9,12 +9,10 @@
             Que ce soit pour ton anniversaire, Noël ou ton mariage, Wishly t&apos;aide à créer des listes de souhaits
             personnalisées et à les partager facilement avec tes proches.
           </p>
-          <button
-            class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 text-white shadow-lg transition-all hover:from-purple-600 hover:to-pink-600 hover:shadow-xl"
-          >
+          <WishlyButton variant="primary" size="lg" href="/wishlists">
             Créer ma wishlist
             <WishlyIcon name="material-symbols:arrow-forward-ios" size="16" class="text-white" />
-          </button>
+          </WishlyButton>
           <p class="mt-4 text-sm text-gray-500">Gratuit et sans engagement</p>
         </div>
 
@@ -75,12 +73,7 @@
         <p class="mx-auto mb-8 max-w-2xl text-purple-50">
           Rejoins des milliers d&apos;utilisateurs qui simplifient leurs événements spéciaux avec Wishly.
         </p>
-        <button
-          class="rounded-lg bg-white px-8 py-4 text-purple-600 shadow-lg transition-colors hover:bg-gray-50"
-          aria-label="Créer votre wishlist maintenant"
-        >
-          Créer ma wishlist maintenant
-        </button>
+        <WishlyButton variant="secondary" size="lg" href="/wishlists"> Créer ma wishlist maintenant </WishlyButton>
       </div>
     </div>
   </section>
@@ -91,6 +84,7 @@
 import Header from '~/components/Header.vue'
 import Footer from '~/components/Footer.vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
+import WishlyButton from '~/components/input/WishlyButton.vue'
 import CardLoadingPage from '~/components/CardLoadingPage.vue'
 
 /**
