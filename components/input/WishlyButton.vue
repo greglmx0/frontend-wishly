@@ -130,7 +130,7 @@ const sizeClasses: ComputedRef<string> = computed(() => {
 const variantClasses: ComputedRef<string> = computed(() => {
   switch (props.variant) {
     case 'secondary':
-      return 'bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 focus-visible:ring-gray-300'
+      return 'bg-white text-purple-600 border border-gray-200 hover:bg-gray-50 focus-visible:ring-gray-300'
     case 'ghost':
       return 'bg-transparent text-gray-900 hover:bg-gray-100 focus-visible:ring-gray-300'
     case 'danger':
