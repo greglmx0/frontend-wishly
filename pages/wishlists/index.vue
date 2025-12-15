@@ -29,34 +29,58 @@
           <span class="ml-1">Créer une liste</span>
         </WishlyButton>
       </div>
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div
           v-for="wl in items"
           :key="wl.id"
-          class="flex flex-col justify-between rounded-lg border border-gray-200 p-4 shadow-sm"
+          class="group flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-gray-300 hover:shadow-md"
         >
-          <div>
-            <div class="flex items-center justify-between">
-              <h3 class="truncate text-lg font-semibold text-gray-900">{{ wl.name }}</h3>
-
-              <WishlyButton variant="ghost" size="sm" @click="openEdit(wl)" aria-label="Modifier">
-                <WishlyIcon name="mdi:pencil-outline" size="18" />
-              </WishlyButton>
+          <!-- Header -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h3 class="line-clamp-2 break-words text-base font-semibold text-gray-900 sm:text-lg">
+                {{ wl.name }}
+              </h3>
+              <div class="mt-1 flex items-center gap-2">
+                <span
+                  class="inline-flex cursor-help items-center rounded-full px-2 py-0.5 text-[11px] sm:text-xs"
+                  :class="visibilityBadgeClass(wl.visibility)"
+                  :title="visibilityTooltip(wl.visibility)"
+                >
+                  <WishlyIcon name="mdi:eye-outline" size="14" class="mr-1" />
+                  {{ visibilityLabel(wl.visibility) }}
+                </span>
+                <span
+                  v-if="wl.countGifts !== undefined"
+                  class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 sm:text-xs"
+                >
+                  <WishlyIcon name="iconoir:gift" size="14" class="mr-1" />
+                  {{ wl.countGifts }} cadeaux
+                </span>
+              </div>
             </div>
-            <p class="mt-1 line-clamp-2 text-sm text-gray-600" v-if="wl.description">{{ wl.description }}</p>
+            <WishlyButton
+              variant="ghost"
+              size="sm"
+              class="opacity-80 transition group-hover:opacity-100"
+              @click="openEdit(wl)"
+              aria-label="Modifier"
+            >
+              <WishlyIcon name="mdi:pencil-outline" size="18" />
+            </WishlyButton>
+          </div>
+
+          <!-- Body -->
+          <div class="mt-2">
+            <p class="line-clamp-3 text-sm text-gray-600" v-if="wl.description">{{ wl.description }}</p>
             <p class="mt-2 text-xs text-gray-400" v-if="wl.createdAt">Créée le {{ formatDate(wl.createdAt) }}</p>
           </div>
+
+          <!-- Footer -->
           <div class="mt-4 flex items-center justify-between">
-            <WishlyButton variant="secondary" size="lg" :href="`/wishlists/${wl.id}`">
-              <WishlyIcon name="iconoir:gift" size="18" />
-              <!-- <span class="ml-2">Consulter la liste</span> -->
+            <WishlyButton variant="secondary" size="sm" :href="`/wishlists/${wl.id}`" aria-label="Consulter">
+              <WishlyIcon name="mdi:eye-outline" size="18" />
             </WishlyButton>
-            <span
-              v-if="wl.countGifts !== undefined"
-              class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
-            >
-              {{ wl.countGifts }} cadeaux
-            </span>
           </div>
         </div>
       </div>
@@ -77,7 +101,13 @@
     />
     <template #footer>
       <div class="flex w-full items-center justify-between">
-        <WishlyButton v-if="editingId" variant="danger" size="sm" :loading="submitting" @click="onDelete(editingId)">
+        <WishlyButton
+          v-if="editingId"
+          variant="danger"
+          size="sm"
+          :loading="submitting"
+          @click="openConfirmDelete(editingId)"
+        >
           <WishlyIcon name="mdi:trash-can-outline" size="18" class="gap-4" />
         </WishlyButton>
         <div class="ml-auto flex items-center gap-2">
@@ -86,6 +116,17 @@
             >Valider</WishlyButton
           >
         </div>
+      </div>
+    </template>
+  </Modal>
+
+  <!-- Confirm Delete Modal -->
+  <Modal :open="confirmOpen" :title="confirmTitle" :closeOnBackdrop="true" @close="closeConfirm">
+    <p class="text-sm text-gray-700">{{ confirmMessage }}</p>
+    <template #footer>
+      <div class="ml-auto flex items-center gap-2">
+        <WishlyButton variant="ghost" size="sm" @click="closeConfirm">Annuler</WishlyButton>
+        <WishlyButton variant="danger" size="sm" @click="confirmDelete">Supprimer</WishlyButton>
       </div>
     </template>
   </Modal>
@@ -221,11 +262,41 @@ const triggerFormSubmit: () => Promise<void> = async () => {
  * Handle delete wishlist
  * @param id - Wishlist ID
  */
-const onDelete: (id: string) => Promise<void> = async (id: string) => {
-  if (!confirm('Supprimer cette wishlist ?')) return
-  const result: Awaited<ReturnType<typeof remove>> = await remove(id)
+// Confirm delete modal state
+const confirmOpen: Ref<boolean> = ref(false)
+const confirmId: Ref<string | null> = ref(null)
+const confirmTitle: Ref<string> = ref('Supprimer la wishlist')
+const confirmMessage: Ref<string> = ref(
+  'Êtes-vous sûr de vouloir supprimer cette wishlist ? Cette action est irréversible.',
+)
+
+/**
+ * Open confirm delete modal
+ * @param id - Wishlist ID
+ */
+const openConfirmDelete: (id: string) => void = (id: string) => {
+  confirmId.value = id
+  confirmOpen.value = true
+}
+
+/**
+ * Close confirm delete modal
+ */
+const closeConfirm: () => void = () => {
+  confirmOpen.value = false
+  modalOpen.value = false
+  confirmId.value = null
+}
+
+/**
+ * Confirm delete action
+ */
+const confirmDelete: () => Promise<void> = async () => {
+  if (!confirmId.value) return
+  const result: Awaited<ReturnType<typeof remove>> = await remove(confirmId.value)
   if (result.success) {
     success('Wishlist supprimée', 3000)
+    closeConfirm()
   } else if (result.error) {
     errorToast(result.error, 3000)
   }
@@ -241,6 +312,57 @@ const formatDate: (iso: string | undefined) => string = (iso: string | undefined
     return new Date(iso).toLocaleDateString()
   } catch {
     return ''
+  }
+}
+
+/**
+ * Translate visibility to label
+ * @param v - Visibility value
+ */
+const visibilityLabel: (v: Wishlist['visibility']) => string = (v: Wishlist['visibility']) => {
+  switch (v) {
+    case 'PUBLIC':
+      return 'Publique'
+    case 'PRIVATE':
+      return 'Privée'
+    case 'FRIENDS_ONLY':
+      return 'Amis seulement'
+    default:
+      return String(v)
+  }
+}
+
+/**
+ * Get tooltip for visibility
+ * @param v - Visibility value
+ */
+const visibilityTooltip: (v: Wishlist['visibility']) => string = (v: Wishlist['visibility']) => {
+  switch (v) {
+    case 'PUBLIC':
+      return 'Visible par tout le monde et partageable publiquement'
+    case 'PRIVATE':
+      return 'Visible uniquement par vous'
+    case 'FRIENDS_ONLY':
+      return 'Visible par vos amis (accès restreint)'
+    default:
+      return ''
+  }
+}
+
+/**
+ * Get badge class for visibility
+ * @param v - Visibility value
+ */
+const visibilityBadgeClass: (v: Wishlist['visibility']) => string = (v: Wishlist['visibility']) => {
+  switch (v) {
+    case 'PUBLIC':
+      return 'bg-green-100 text-green-700'
+    case 'PRIVATE':
+      return 'bg-gray-100 text-gray-700'
+    case 'FRIENDS_ONLY':
+      return 'bg-blue-100 text-blue-700'
+    default:
+      return 'bg-gray-100 text-gray-700'
   }
 }
 </script>
