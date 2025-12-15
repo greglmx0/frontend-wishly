@@ -141,7 +141,7 @@ export const useWishlists: () => {
     loading.value = true
     error.value = undefined
     try {
-      const data: Wishlist = await $fetch<Wishlist>(`/api/wishlists/${id}`, {
+      const data: Wishlist = await $fetch<Wishlist>(`/api/wishlist/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: payload,
@@ -169,7 +169,7 @@ export const useWishlists: () => {
     loading.value = true
     error.value = undefined
     try {
-      await $fetch(`/api/wishlists/${id}`, {
+      await $fetch(`/api/wishlist/${id}`, {
         method: 'DELETE',
         headers: { ...authHeaders() },
       })
