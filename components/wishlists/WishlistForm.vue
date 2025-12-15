@@ -2,7 +2,14 @@
   <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">Nom</label>
-      <WishlyInput v-model="local.name" type="text" placeholder="Ex: Anniversaire 2025" :error="errors.name" required />
+      <WishlyInput
+        v-model="local.name"
+        type="text"
+        placeholder="Ex: Anniversaire 2025"
+        :error="errors.name"
+        :maxlength="200"
+        required
+      />
     </div>
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">Description</label>
@@ -11,6 +18,7 @@
         :rows="3"
         placeholder="Optionnel"
         :error="errors.description"
+        :maxlength="2000"
         required
       />
     </div>
@@ -97,8 +105,18 @@ const onSubmit: () => void = () => {
     return
   }
 
+  if (nameVal.length > 200) {
+    errors.name = 'Le nom ne doit pas dépasser 200 caractères.'
+    return
+  }
+
   if (!descriptionVal) {
     errors.description = 'La description est requise.'
+    return
+  }
+
+  if (descriptionVal.length > 2000) {
+    errors.description = 'La description ne doit pas dépasser 2000 caractères.'
     return
   }
 
