@@ -9,11 +9,12 @@ import { useAuth } from '~/composables/useAuth'
  * @property createdAt - Creation timestamp (optional)
  * @property updatedAt - Last update timestamp (optional)
  */
-type Wishlist = {
+export type Wishlist = {
   id: string
   name: string
   description: string
-  visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS_ONLY'
+  visibility: Visibility
+  countGifts: number
   createdAt?: string
   updatedAt?: string
 }
@@ -22,10 +23,19 @@ type Wishlist = {
  * @property name - Name of the wishlist
  * @property description - Description of the wishlist (optional)
  */
-type WishlistInput = {
+export type WishlistInput = {
   name: string
-  description?: string
+  description: string
+  visibility: Visibility
 }
+
+/**
+ * Visibility options for wishlists
+ * @property PUBLIC - Public visibility
+ * @property PRIVATE - Private visibility
+ * @property FRIENDS_ONLY - Friends only visibility
+ */
+export type Visibility = 'PUBLIC' | 'PRIVATE' | 'FRIENDS_ONLY'
 
 /**
  * useWishlists composable for managing wishlists
@@ -49,7 +59,7 @@ export const useWishlists: () => {
   const loading: Ref<boolean> = ref<boolean>(false)
   const error: Ref<string | undefined> = ref<string | undefined>(undefined)
 
-  const { getToken } = useAuth()
+  const { getToken, logout } = useAuth()
 
   /**
    *
@@ -76,6 +86,7 @@ export const useWishlists: () => {
     } catch (err: any) {
       error.value = err?.data?.message || err.message || 'Failed to load wishlists'
       if (err?.status === 401 || err?.status === 403) {
+        logout()
         navigateTo({ path: '/login', query: { redirect: '/wishlists' } })
       }
       return { success: false, error: error.value || undefined }
