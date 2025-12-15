@@ -16,7 +16,7 @@
       <WishlyTextarea
         v-model="local.description"
         :rows="3"
-        placeholder="Optionnel"
+        placeholder="Ex: Ma liste d'anniversaire pour mes 30 ans"
         :error="errors.description"
         :maxlength="2000"
         required
