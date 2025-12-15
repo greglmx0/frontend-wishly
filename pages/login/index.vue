@@ -120,7 +120,7 @@ const onLogin: () => Promise<void> = async (): Promise<void> => {
       success('Connexion réussie! Redirection en cours...', 1500)
       setTimeout(() => {
         navigateTo('/')
-      }, 1500)
+      }, 200)
     } else {
       errorToast(result.error || 'Erreur de connexion', 5000)
     }
