@@ -12,6 +12,7 @@
         :disabled="disabled"
         :required="required"
         :autocomplete="autocomplete"
+        :maxlength="maxlength || undefined"
         :aria-invalid="!!error"
         :class="inputClasses"
         @input="onInput"
@@ -48,6 +49,7 @@ type InputType = 'text' | 'email' | 'password'
  * @property {string} autocomplete - The autocomplete attribute for the input.
  * @property {boolean} iconLeft - Whether there is an icon on the left side.
  * @property {boolean} iconRight - Whether there is an icon on the right side.
+ * @property {number} [maxlength] - The maximum length of the input.
  */
 type Props = {
   modelValue: string
@@ -60,6 +62,7 @@ type Props = {
   autocomplete: string
   iconLeft: boolean
   iconRight: boolean
+  maxlength?: number
 }
 
 const props: Props = withDefaults(
@@ -74,6 +77,7 @@ const props: Props = withDefaults(
     autocomplete?: string
     iconLeft?: boolean
     iconRight?: boolean
+    maxlength?: number
   }>(),
   {
     modelValue: '',
@@ -86,6 +90,7 @@ const props: Props = withDefaults(
     autocomplete: 'off',
     iconLeft: false,
     iconRight: false,
+    maxlength: undefined,
   },
 )
 

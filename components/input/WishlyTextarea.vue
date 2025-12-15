@@ -7,6 +7,7 @@
       :placeholder="placeholder"
       :required="required"
       :disabled="disabled"
+      :maxlength="maxlength || undefined"
       class="w-full rounded-lg border px-4 py-2 focus:outline-none"
       :class="[
         error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-purple-500',
@@ -29,6 +30,7 @@
  * @property {string} [error] - Error message to display
  * @property {boolean} [required] - Whether the textarea is required
  * @property {boolean} [disabled] - Whether the textarea is disabled
+ * @property {number} [maxlength] - Maximum length of the textarea content
  */
 type Props = {
   modelValue?: string
@@ -38,6 +40,7 @@ type Props = {
   error?: string
   required?: boolean
   disabled?: boolean
+  maxlength?: number
 }
 
 withDefaults(defineProps<Props>(), {
@@ -48,6 +51,7 @@ withDefaults(defineProps<Props>(), {
   error: '',
   required: false,
   disabled: false,
+  maxlength: undefined,
 })
 
 defineEmits<{ (e: 'update:modelValue', value: string): void }>()
