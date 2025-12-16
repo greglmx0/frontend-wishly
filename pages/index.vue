@@ -107,8 +107,7 @@ const steps: Step[] = [
     id: 1,
     icon: 'stash:list-add',
     title: 'Crée ta wishlist',
-    description:
-      'En quelques clics, crée une wishlist personnalisée pour n'importe quelle occasion : anniversaire, mariage, Noël ou simplement pour garder tes envies en un seul endroit.',
+    description: `En quelques clics, crée une wishlist personnalisée pour n'importe quelle occasion : anniversaire, mariage, Noël ou simplement pour garder tes envies en un seul endroit.`,
   },
   {
     id: 2,
@@ -131,8 +130,7 @@ const benefits: Step[] = [
     id: 1,
     icon: 'grommet-icons:validate',
     title: 'Simplicité avant tout',
-    description:
-      'Interface intuitive et facile à utiliser. Crée ta wishlist en moins de 2 minutes, même si tu n'es pas un pro de la tech.',
+    description: `Interface intuitive et facile à utiliser. Crée ta wishlist en moins de 2 minutes, même si tu n'es pas un pro de la tech.`,
   },
   {
     id: 2,
@@ -152,8 +150,7 @@ const benefits: Step[] = [
     id: 4,
     icon: 'fluent:shield-task-16-regular',
     title: 'Évite les doublons',
-    description:
-      'Grâce au système de réservation, tes proches peuvent marquer les cadeaux qu'ils vont t'offrir. Fini les doublons embarrassants !',
+    description: `Grâce au système de réservation, tes proches peuvent marquer les cadeaux qu'ils vont t'offrir. Fini les doublons embarrassants !`,
   },
 ]
 </script>
