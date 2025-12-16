@@ -59,7 +59,7 @@
               <a href="#" class="transition-colors hover:text-white"> À propos </a>
             </li>
             <li>
-              <a href="#" class="transition-colors hover:text-white"> Conditions d&apos;utilisation </a>
+              <a href="#" class="transition-colors hover:text-white"> Conditions d'utilisation </a>
             </li>
             <li>
               <a href="#" class="transition-colors hover:text-white"> Politique de confidentialité </a>

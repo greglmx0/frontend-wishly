@@ -5,7 +5,7 @@
         <div class="text-center lg:text-left">
           <h1 class="mb-6 text-gray-900">Crée, organise et partage tes wishlists en toute simplicité</h1>
           <p class="mx-auto mb-8 max-w-xl text-gray-600 lg:mx-0">
-            Que ce soit pour ton anniversaire, Noël ou ton mariage, Wishly t&apos;aide à créer des listes de souhaits
+            Que ce soit pour ton anniversaire, Noël ou ton mariage, Wishly t'aide à créer des listes de souhaits
             personnalisées et à les partager facilement avec tes proches.
           </p>
           <WishlyButton variant="primary" size="lg" href="/wishlists">
@@ -32,7 +32,7 @@
       <div class="mb-16 text-center">
         <h2 class="mb-4 text-gray-900">Comment ça marche ?</h2>
         <p class="mx-auto max-w-2xl text-gray-600">
-          Créer et partager ta wishlist n&apos;a jamais été aussi simple. Suis ces trois étapes et fais plaisir à tes
+          Créer et partager ta wishlist n'a jamais été aussi simple. Suis ces trois étapes et fais plaisir à tes
           proches.
         </p>
       </div>
@@ -70,7 +70,7 @@
       <div class="mt-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 p-12 text-center text-white">
         <h2 class="mb-4 text-white">Prêt à commencer ?</h2>
         <p class="mx-auto mb-8 max-w-2xl text-purple-50">
-          Rejoins des milliers d&apos;utilisateurs qui simplifient leurs événements spéciaux avec Wishly.
+          Rejoins des milliers d'utilisateurs qui simplifient leurs événements spéciaux avec Wishly.
         </p>
         <WishlyButton variant="secondary" size="lg" href="/wishlists"> Créer ma wishlist maintenant </WishlyButton>
       </div>
@@ -108,7 +108,7 @@ const steps: Step[] = [
     icon: 'stash:list-add',
     title: 'Crée ta wishlist',
     description:
-      'En quelques clics, crée une wishlist personnalisée pour n&apos;importe quelle occasion : anniversaire, mariage, Noël ou simplement pour garder tes envies en un seul endroit.',
+      'En quelques clics, crée une wishlist personnalisée pour n'importe quelle occasion : anniversaire, mariage, Noël ou simplement pour garder tes envies en un seul endroit.',
   },
   {
     id: 2,
@@ -132,7 +132,7 @@ const benefits: Step[] = [
     icon: 'grommet-icons:validate',
     title: 'Simplicité avant tout',
     description:
-      'Interface intuitive et facile à utiliser. Crée ta wishlist en moins de 2 minutes, même si tu n&apos;es pas un pro de la tech.',
+      'Interface intuitive et facile à utiliser. Crée ta wishlist en moins de 2 minutes, même si tu n'es pas un pro de la tech.',
   },
   {
     id: 2,
@@ -153,7 +153,7 @@ const benefits: Step[] = [
     icon: 'fluent:shield-task-16-regular',
     title: 'Évite les doublons',
     description:
-      'Grâce au système de réservation, tes proches peuvent marquer les cadeaux qu&apos;ils vont t&apos;offrir. Fini les doublons embarrassants !',
+      'Grâce au système de réservation, tes proches peuvent marquer les cadeaux qu'ils vont t'offrir. Fini les doublons embarrassants !',
   },
 ]
 </script>
