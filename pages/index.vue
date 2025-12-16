@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <section class="bg-gradient-to-b from-purple-50 to-white py-16 sm:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="grid items-center gap-12 lg:grid-cols-2">
@@ -81,11 +80,14 @@
 </template>
 
 <script setup lang="ts">
-import Header from '~/components/Header.vue'
 import Footer from '~/components/Footer.vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
 import WishlyButton from '~/components/input/WishlyButton.vue'
 import CardLoadingPage from '~/components/CardLoadingPage.vue'
+
+definePageMeta({
+  layout: 'header',
+})
 
 /**
  * @type {Step}

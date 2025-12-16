@@ -3,9 +3,11 @@
     <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
       <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
         <div class="flex items-center gap-2">
-          <div class="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-2">
-            <WishlyIcon name="iconoir:gift" size="32" class="text-white" />
-          </div>
+          <NuxtLink to="/">
+            <div class="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-2">
+              <WishlyIcon name="iconoir:gift" size="32" class="text-white" />
+            </div>
+          </NuxtLink>
           <span class="text-lg text-gray-900 sm:text-xl">Wishly</span>
         </div>
         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -36,12 +38,13 @@
       </div>
     </div>
   </header>
+  <slot />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
-import WishlyButton from './input/WishlyButton.vue'
+import WishlyButton from '~/components/input/WishlyButton.vue'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 
