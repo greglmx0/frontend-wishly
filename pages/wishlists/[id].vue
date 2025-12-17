@@ -44,8 +44,8 @@
                 <span
                   class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 sm:text-xs"
                 >
-                  <WishlyIcon name="mdi:currency-usd" size="14" class="mr-1" />
                   {{ g.price ?? '—' }}
+                  <WishlyIcon name="material-symbols:euro-rounded" size="14" class="ml-1" />
                 </span>
                 <span
                   class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 sm:text-xs"
@@ -82,7 +82,7 @@
             </a>
           </div>
 
-          <div class="mt-4 flex items-center justify-between">
+          <div v-if="canManage" class="mt-4 flex items-center justify-between">
             <span
               class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-xs"
               :class="visibilityBadgeClass(g.visibility)"
@@ -90,13 +90,7 @@
               <WishlyIcon name="mdi:eye-outline" size="14" class="mr-1" />
               {{ visibilityLabel(g.visibility) }}
             </span>
-            <WishlyButton
-              v-if="canManage"
-              variant="danger"
-              size="sm"
-              @click="openConfirmDelete(g.id)"
-              aria-label="Supprimer"
-            >
+            <WishlyButton variant="danger" size="sm" @click="openConfirmDelete(g.id)" aria-label="Supprimer">
               <WishlyIcon name="mdi:trash-can-outline" size="18" />
             </WishlyButton>
           </div>
@@ -106,7 +100,7 @@
   </div>
 
   <!-- Floating Create Gift Button -->
-  <div v-if="canManage" class="fixed bottom-8 right-8 z-40 md:bottom-20 md:right-80">
+  <div v-if="canManage" class="fixed bottom-8 right-8 z-40">
     <WishlyButton variant="primary" size="lg" @click="openCreate()" aria-label="Ajouter un cadeau">
       <WishlyIcon name="material-symbols:add-rounded" class="text-white" />
       <span class="ml-2 hidden md:inline">Ajouter un cadeau</span>
