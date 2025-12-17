@@ -1,0 +1,22 @@
+export default defineEventHandler<any>(async (event): Promise<any> => {
+  const config = useRuntimeConfig()
+  const authHeader = getHeader(event, 'Authorization')
+  const wishlistId = getRouterParam(event, 'wishlistId')
+
+  if (!wishlistId) {
+    throw createError({ statusCode: 400, statusMessage: 'Missing wishlistId' })
+  }
+
+  try {
+    const response = await $fetch(`${config.public.apiBaseUrl}/api/wishlist/${wishlistId}/gifts`, {
+      method: 'GET',
+      headers: authHeader ? { Authorization: authHeader } : undefined,
+    })
+    return response
+  } catch (error: any) {
+    throw createError({
+      statusCode: error.status || 500,
+      statusMessage: error.data?.message || 'Failed to fetch gifts',
+    })
+  }
+})

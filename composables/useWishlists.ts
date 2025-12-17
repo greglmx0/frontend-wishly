@@ -53,6 +53,7 @@ export const useWishlists: () => {
     payload: Partial<WishlistInput>,
   ) => Promise<{ success: boolean; data?: Wishlist; error?: string }>
   remove: (id: string) => Promise<{ success: boolean; error?: string }>
+  checkOwner: (id: string) => Promise<{ success: boolean; data?: boolean; error?: string }>
 } = () => {
   const items: Ref<Wishlist[] | undefined> = ref<Wishlist[] | undefined>(undefined)
   const current: Ref<Wishlist | undefined> = ref<Wishlist | undefined>(undefined)
@@ -190,6 +191,26 @@ export const useWishlists: () => {
     }
   }
 
+  /**
+   * Check if current user owns the wishlist
+   * @param id - wishlist id
+   * @returns { success, data:boolean }
+   */
+  const checkOwner: (id: string) => Promise<{ success: boolean; data?: boolean; error?: string }> = async (
+    id: string,
+  ) => {
+    try {
+      const data: { isOwner: boolean } = await $fetch<{ isOwner: boolean }>(`/api/wishlists/${id}/checkowner`, {
+        method: 'GET',
+        headers: { ...authHeaders() },
+      })
+      return { success: true, data: !!data.isOwner }
+    } catch (err: any) {
+      const msg: string = err?.data?.message || err.message || 'Failed to check ownership'
+      return { success: false, error: msg }
+    }
+  }
+
   return {
     items: readonly(items) as Readonly<Ref<Wishlist[] | undefined>>,
     current: readonly(current) as Readonly<Ref<Wishlist | undefined>>,
@@ -199,5 +220,6 @@ export const useWishlists: () => {
     create,
     update,
     remove,
+    checkOwner,
   }
 }
