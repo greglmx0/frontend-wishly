@@ -42,13 +42,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
 import WishlyButton from '~/components/input/WishlyButton.vue'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 
-const { user, isAuthenticated, logout, initializeAuth } = useAuth()
+const { user, isAuthenticated, logout } = useAuth()
 const { success } = useToast()
 
 const userEmail: ComputedRef<string> = computed(() => user.value?.email || '')
@@ -62,8 +62,4 @@ const onLogout: () => void = () => {
   success('Vous avez été déconnecté', 1500)
   navigateTo('/login')
 }
-
-onMounted(() => {
-  initializeAuth()
-})
 </script>
