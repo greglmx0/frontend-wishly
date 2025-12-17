@@ -85,9 +85,11 @@ export const useGifts: () => {
   /**
    *
    */
-  const authHeaders: () => Record<string, string> | undefined = () => {
+  const authHeaders: () => Record<string, string> = () => {
+    const headers: Record<string, string> = {}
     const token: string | undefined = getToken() || undefined
-    return token ? { Authorization: `Bearer ${token}` } : undefined
+    if (token) headers.Authorization = `Bearer ${token}`
+    return headers
   }
 
   /**

@@ -65,9 +65,11 @@ export const useWishlists: () => {
   /**
    *
    */
-  const authHeaders: () => Record<string, string> | undefined = () => {
+  const authHeaders: () => Record<string, string> = () => {
+    const headers: Record<string, string> = {}
     const token: string | undefined = getToken() || undefined
-    return token ? { Authorization: `Bearer ${token}` } : undefined
+    if (token) headers.Authorization = `Bearer ${token}`
+    return headers
   }
 
   /**
@@ -97,8 +99,32 @@ export const useWishlists: () => {
   }
 
   /**
-   * Get a single wishlist by ID
-   * @param payload - Wishlist ID
+   * Check if current user owns the wishlist
+   * @param id - wishlist id
+   * @returns { success, data:boolean }
+   */
+  const checkOwner: (id: string) => Promise<{ success: boolean; data?: boolean; error?: string }> = async (
+    id: string,
+  ) => {
+    try {
+      const data: { isOwner: boolean } = await $fetch<{ isOwner: boolean }>(`/api/wishlist/${id}/check-owner`, {
+        method: 'GET',
+        headers: { ...authHeaders() },
+      })
+
+      console.log('responce ', data)
+
+      return { success: true, data: data.isOwner }
+    } catch (err: any) {
+      console.error('Error checking wishlist ownership:', err)
+      const msg: string = err?.data?.message || err?.message || 'Failed to check ownership'
+      return { success: false, error: msg }
+    }
+  }
+
+  /**
+   * Create a new wishlist
+   * @param payload - Wishlist input data
    * @returns
    */
   const create: (payload: WishlistInput) => Promise<{ success: boolean; data?: Wishlist; error?: string }> = async (
@@ -188,26 +214,6 @@ export const useWishlists: () => {
       return { success: false, error: error.value || undefined }
     } finally {
       loading.value = false
-    }
-  }
-
-  /**
-   * Check if current user owns the wishlist
-   * @param id - wishlist id
-   * @returns { success, data:boolean }
-   */
-  const checkOwner: (id: string) => Promise<{ success: boolean; data?: boolean; error?: string }> = async (
-    id: string,
-  ) => {
-    try {
-      const data: { isOwner: boolean } = await $fetch<{ isOwner: boolean }>(`/api/wishlists/${id}/checkowner`, {
-        method: 'GET',
-        headers: { ...authHeaders() },
-      })
-      return { success: true, data: !!data.isOwner }
-    } catch (err: any) {
-      const msg: string = err?.data?.message || err.message || 'Failed to check ownership'
-      return { success: false, error: msg }
     }
   }
 
