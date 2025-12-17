@@ -119,6 +119,13 @@ const onLogin: () => Promise<void> = async (): Promise<void> => {
     if (result.success) {
       success('Connexion réussie! Redirection en cours...', 1500)
       setTimeout(() => {
+        // query param redirect
+        const urlParams: URLSearchParams = new URLSearchParams(window.location.search)
+        const redirectPath: string | null = urlParams.get('redirect')
+        if (redirectPath) {
+          navigateTo(redirectPath)
+          return
+        }
         navigateTo('/')
       }, 200)
     } else {
