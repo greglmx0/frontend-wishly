@@ -32,69 +32,14 @@
       </div>
 
       <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div
+        <GiftCard
           v-for="g in items"
           :key="g.id"
-          class="group flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-gray-300 hover:shadow-md"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0 flex-1">
-              <h3 class="line-clamp-2 break-words text-base font-semibold text-gray-900 sm:text-lg">{{ g.name }}</h3>
-              <div class="mt-1 flex items-center gap-2">
-                <span
-                  class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 sm:text-xs"
-                >
-                  {{ g.price ?? '—' }}
-                  <WishlyIcon name="material-symbols:euro-rounded" size="14" class="ml-1" />
-                </span>
-                <span
-                  class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-700 sm:text-xs"
-                  v-if="g.tags?.length"
-                >
-                  <WishlyIcon name="mdi:tag-outline" size="14" class="mr-1" />
-                  {{ g.tags.join(', ') }}
-                </span>
-              </div>
-            </div>
-            <WishlyButton
-              variant="ghost"
-              size="sm"
-              class="opacity-80 transition group-hover:opacity-100"
-              @click="openEdit(g)"
-              aria-label="Modifier"
-              v-if="canManage"
-            >
-              <WishlyIcon name="mdi:pencil-outline" size="18" />
-            </WishlyButton>
-          </div>
-
-          <div class="mt-2">
-            <p class="line-clamp-3 text-sm text-gray-600" v-if="g.description">{{ g.description }}</p>
-            <a
-              v-if="g.url"
-              :href="g.url"
-              target="_blank"
-              rel="noopener"
-              class="mt-2 inline-flex items-center text-xs text-purple-600 hover:underline"
-            >
-              <WishlyIcon name="mdi:link-variant" size="14" class="mr-1" />
-              {{ g.url }}
-            </a>
-          </div>
-
-          <div v-if="canManage" class="mt-4 flex items-center justify-between">
-            <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-xs"
-              :class="visibilityBadgeClass(g.visibility)"
-            >
-              <WishlyIcon name="mdi:eye-outline" size="14" class="mr-1" />
-              {{ visibilityLabel(g.visibility) }}
-            </span>
-            <WishlyButton variant="danger" size="sm" @click="openConfirmDelete(g.id)" aria-label="Supprimer">
-              <WishlyIcon name="mdi:trash-can-outline" size="18" />
-            </WishlyButton>
-          </div>
-        </div>
+          :gift="g"
+          :can-manage="canManage"
+          @edit="openEdit"
+          @delete="openConfirmDelete"
+        />
       </div>
     </div>
   </div>
@@ -144,6 +89,7 @@ import WishlyButton from '~/components/input/WishlyButton.vue'
 import WishlyIcon from '~/components/WishlyIcon.vue'
 import Modal from '~/components/Modal.vue'
 import GiftForm from '~/components/gifts/GiftForm.vue'
+import GiftCard from '~/components/gifts/GiftCard.vue'
 import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router'
 
 definePageMeta({
@@ -344,42 +290,6 @@ const confirmDelete: () => Promise<void> = async (): Promise<void> => {
     closeConfirm()
   } else if (result.error) {
     errorToast(result.error, 3000)
-  }
-}
-
-/**
- * Get visibility label
- * @param v - Gift visibility
- * @returns {string} - Label for the visibility
- */
-const visibilityLabel: (v: GiftVisibility) => string = (v: GiftVisibility) => {
-  switch (v) {
-    case 'PUBLIC':
-      return 'Publique'
-    case 'PRIVATE':
-      return 'Privée'
-    case 'DISABLED':
-      return 'Désactivé'
-    default:
-      return String(v)
-  }
-}
-
-/**
- * Get visibility badge class
- * @param v - Gift visibility
- * @returns {string} - CSS classes for the visibility badge
- */
-const visibilityBadgeClass: (v: GiftVisibility) => string = (v: GiftVisibility) => {
-  switch (v) {
-    case 'PUBLIC':
-      return 'bg-green-100 text-green-700'
-    case 'PRIVATE':
-      return 'bg-gray-100 text-gray-700'
-    case 'DISABLED':
-      return 'bg-yellow-100 text-yellow-700'
-    default:
-      return 'bg-gray-100 text-gray-700'
   }
 }
 </script>
