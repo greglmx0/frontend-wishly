@@ -29,11 +29,21 @@ const user: Ref<any> = ref(null)
 const loading: Ref<boolean> = ref(false)
 const error: Ref<AuthError | null> = ref(null)
 
-/**
- * useAuth composable for managing authentication
- * @returns { token, user, loading, error, isAuthenticated, initializeAuth, login, register, logout, getToken, clearError }
+/** Return type of useAuth composable
+ * @property token - Authentication token
+ * @property user - User information
+ * @property loading - Loading state
+ * @property error - Error state
+ * @property isAuthenticated - Computed boolean indicating if user is authenticated
+ * @property initializeAuth - Function to initialize authentication state
+ * @property login - Function to log in a user
+ * @property register - Function to register a new user
+ * @property logout - Function to log out the user
+ * @property getToken - Function to get the current auth token
+ * @property clearError - Function to clear the error state
+ * @property authHeaders - Function to get authorization headers for API requests
  */
-export const useAuth: () => {
+export type UseAuthReturn = {
   token: Readonly<Ref<string | null>>
   user: Readonly<Ref<any>>
   loading: Readonly<Ref<boolean>>
@@ -49,7 +59,14 @@ export const useAuth: () => {
   logout: () => void
   getToken: () => string | null
   clearError: () => void
-} = () => {
+  authHeaders: () => Record<string, string>
+}
+
+/**
+ * useAuth composable for managing authentication
+ * @returns UseAuthReturn
+ */
+export const useAuth: () => UseAuthReturn = () => {
   const TOKEN_KEY: string = 'auth_token'
   const USER_KEY: string = 'auth_user'
 
@@ -164,6 +181,17 @@ export const useAuth: () => {
   }
 
   /**
+   * Get auth headers for API requests
+   * @return Record<string, string> - Headers including Authorization if token exists
+   */
+  const authHeaders: () => Record<string, string> = () => {
+    const headers: Record<string, string> = {}
+    const token: string | undefined = getToken() || undefined
+    if (token) headers.Authorization = `Bearer ${token}`
+    return headers
+  }
+
+  /**
    * Get auth token (for API headers)
    */
   const getToken: () => string | null = () => token.value
@@ -187,5 +215,6 @@ export const useAuth: () => {
     logout,
     getToken,
     clearError,
+    authHeaders,
   }
 }

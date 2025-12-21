@@ -60,17 +60,7 @@ export const useWishlists: () => {
   const loading: Ref<boolean> = ref<boolean>(false)
   const error: Ref<string | undefined> = ref<string | undefined>(undefined)
 
-  const { getToken, logout } = useAuth()
-
-  /**
-   *
-   */
-  const authHeaders: () => Record<string, string> = () => {
-    const headers: Record<string, string> = {}
-    const token: string | undefined = getToken() || undefined
-    if (token) headers.Authorization = `Bearer ${token}`
-    return headers
-  }
+  const { logout, authHeaders } = useAuth()
 
   /**
    * Fetch all wishlists

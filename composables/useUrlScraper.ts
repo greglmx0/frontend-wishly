@@ -1,3 +1,7 @@
+import { ref, readonly, type Ref } from 'vue'
+import { useAuth } from '~/composables/useAuth'
+const { authHeaders } = useAuth()
+
 /**
  * Composable for scraping product information from URLs
  */
@@ -50,6 +54,7 @@ export const useUrlScraper: () => UseUrlScraperReturn = () => {
       const response: { success: boolean; data: ScrapedProduct } = await $fetch('/api/scrape-url', {
         method: 'POST',
         body: { url },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
       })
 
       if (!response.success) {
