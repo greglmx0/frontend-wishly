@@ -44,19 +44,21 @@
       </WishlyButton>
     </div>
 
-    <div v-if="previewUrl" class="mt-3 overflow-hidden bg-gray-100">
-      <div class="aspect-3/2 relative w-full pt-[66.6667%]">
-        <img
-          v-if="previewUrl"
-          :src="previewUrl"
-          alt="Aperçu du cadeau"
-          :class="imgClasses"
-          @error="onImgError"
-          @load="onImgLoad"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
+    <div
+      v-if="previewUrl"
+      class="mt-3 flex h-80 items-center justify-center overflow-hidden rounded-lg bg-gray-50 sm:h-96"
+    >
+      <img
+        v-if="previewUrl"
+        :src="previewUrl"
+        alt="Aperçu du cadeau"
+        @error="onImgError"
+        @load="onImgLoad"
+        loading="lazy"
+        decoding="async"
+        style="max-height: 584px; max-width: 584px"
+        class="h-full w-full object-scale-down transition-transform group-hover:scale-105"
+      />
     </div>
 
     <p class="my-4 line-clamp-3 text-sm text-gray-600" v-if="gift.description">{{ gift.description }}</p>
@@ -140,26 +142,11 @@ const onImgError: () => void = () => {
   hidePreview.value = true
 }
 
-// Dynamically choose fit to handle extreme aspect ratios
-const fit: Ref<'cover' | 'contain'> = ref<'cover' | 'contain'>('cover')
-const imgClasses: ComputedRef<string> = computed<string>(() => {
-  return `absolute inset-0 h-full w-full object-${fit.value} object-center transition-transform duration-300 ease-out group-hover:scale-[1.02]`
-})
-
 /**
- * Handle image load to adjust object-fit based on aspect ratio
- * @param e - Load event
+ * Handle image load
  */
-const onImgLoad: (e: Event) => void = (e: Event) => {
-  const img: HTMLImageElement = e.target as HTMLImageElement
-  const naturalRatio: number = img.naturalWidth / img.naturalHeight
-  const containerRatio: number = 3 / 2
-  // If extremely wide or tall, prefer contain to avoid awkward cropping
-  if (naturalRatio > containerRatio * 1.8 || naturalRatio < containerRatio / 1.8) {
-    fit.value = 'contain'
-  } else {
-    fit.value = 'cover'
-  }
+const onImgLoad: () => void = () => {
+  // Image loaded successfully
 }
 
 // Scroll-in animation (simple intersection observer)

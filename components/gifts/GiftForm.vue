@@ -27,6 +27,7 @@
           >
             {{ scraper.loading.value ? 'Recherche en cours...' : 'Rechercher' }}
           </WishlyButton>
+          <WishlyButton variant="ghost" @click="currentStep = 2"> Remplir manuellement </WishlyButton>
         </div>
 
         <div v-if="scraper.error.value" class="rounded-md bg-red-50 p-3">
@@ -80,9 +81,36 @@
             <label class="mb-1 block text-sm font-medium text-gray-700">Tags (séparés par des virgules)</label>
             <WishlyInput v-model="tagsInput" type="text" placeholder="Ex: jouet, star wars" />
           </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            <div
+              v-for="(img, index) in local.images"
+              :key="index"
+              class="group relative flex h-40 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+            >
+              <img :src="img" class="max-h-full max-w-full object-contain transition-transform group-hover:scale-105" />
+              <button
+                type="button"
+                class="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 shadow-md transition-all hover:bg-red-500 hover:shadow-lg"
+                @click="removeImage(index)"
+              >
+                <WishlyIcon name="iwwa:delete" size="18" class="text-red-600 transition-colors hover:text-white" />
+              </button>
+            </div>
+          </div>
+
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Images (URLs, séparées par des virgules)</label>
-            <WishlyInput v-model="imagesInput" type="text" placeholder="https://img1, https://img2" />
+            <label class="mb-1 block text-sm font-medium text-gray-700">Ajouter une image</label>
+            <div class="flex gap-2">
+              <WishlyInput
+                v-model="newImageInput"
+                placeholder="https://exemple.com/image.jpg"
+                :error="newImageError"
+                @keyup.enter="addImages"
+              />
+              <WishlyButton @click="addImages" :disabled="!newImageInput.trim()"> Ajouter </WishlyButton>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Formats supportés: JPG, PNG, GIF, WebP, SVG</p>
           </div>
         </form>
 
@@ -178,6 +206,9 @@ const currentStep: Ref<FormStep> = ref<FormStep>(1)
 const scrapingUrl: Ref<string> = ref('')
 const urlError: Ref<string> = ref('')
 const scraper: UseUrlScraperReturn = useUrlScraper()
+const newImageInput: Ref<string> = ref('')
+const newImageError: Ref<string> = ref('')
+const addingImageLoading: Ref<boolean> = ref(false)
 
 const local: GiftFormValues = reactive<GiftFormValues>({
   ...DEFAULT_FORM_VALUES,
@@ -210,24 +241,75 @@ const tagsInput: ComputedRef<string> = computed<string>({
 })
 
 /**
- * Convert images array to comma-separated string and vice versa
+ * Remove image at specified index
+ * @param index - Index of image to remove
  */
-const imagesInput: ComputedRef<string> = computed<string>({
-  /**
-   * Convert images array to comma-separated string and vice versa
-   */
-  get: () => (local.images ?? []).join(', '),
-  /**
-   * Convert comma-separated string to images array
-   * @param val - Comma-separated image URLs string
-   */
-  set: (val: string) => {
-    local.images = val
-      .split(',')
-      .map((t: string) => t.trim())
-      .filter(Boolean)
-  },
-})
+const removeImage: (index: number) => void = (index: number): void => {
+  if (local.images && index >= 0 && index < local.images.length) {
+    local.images.splice(index, 1)
+  }
+}
+
+/**
+ * Add images from newImageInput to images array (validated via backend)
+ */
+const addImages: () => Promise<void> = async (): Promise<void> => {
+  newImageError.value = ''
+  const raw: string = newImageInput.value
+  const inputs: string[] = raw
+    .split(',')
+    .map((s: string) => s.trim())
+    .filter(Boolean)
+
+  if (inputs.length === 0) {
+    newImageError.value = 'Veuillez entrer une URL'
+    return
+  }
+
+  addingImageLoading.value = true
+  try {
+    const validatedUrls: string[] = []
+
+    for (const val of inputs) {
+      // Basic format check
+      try {
+        const u: URL = new URL(val)
+        if (!u.protocol.startsWith('http')) {
+          throw new Error("L'URL doit commencer par http:// ou https://")
+        }
+      } catch {
+        throw new Error(`Format d'URL invalide: ${val}`)
+      }
+
+      // Backend validation of content-type
+      const res: { valid: boolean; url: string } = await $fetch('/api/validate-image', {
+        method: 'POST',
+        body: { url: val },
+      })
+
+      if (!res.valid || !res.url) {
+        throw new Error(`L'URL n'est pas une image: ${val}`)
+      }
+
+      // Avoid duplicates
+      if (!local.images?.includes(res.url)) {
+        validatedUrls.push(res.url)
+      }
+    }
+
+    if (validatedUrls.length === 0) {
+      newImageError.value = 'Aucune nouvelle image à ajouter'
+      return
+    }
+
+    local.images = [...(local.images ?? []), ...validatedUrls]
+    newImageInput.value = ''
+  } catch (e) {
+    newImageError.value = e instanceof Error ? e.message : "Impossible d'ajouter cette image"
+  } finally {
+    addingImageLoading.value = false
+  }
+}
 
 /**
  * Convert price number to string and vice versa
@@ -262,6 +344,9 @@ const clearErrors: () => void = (): void => {
 const resetForm: () => void = (): void => {
   currentStep.value = 1
   scrapingUrl.value = ''
+  newImageInput.value = ''
+  newImageError.value = ''
+  addingImageLoading.value = false
   Object.assign(local, DEFAULT_FORM_VALUES)
 }
 
