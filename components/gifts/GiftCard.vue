@@ -47,8 +47,8 @@
     <div v-if="previewUrl" class="mt-3 overflow-hidden bg-gray-100">
       <div class="aspect-3/2 relative w-full pt-[66.6667%]">
         <img
-          v-if="props.gift.images.length ? props.gift.images[0] : null"
-          :src="props.gift.images[0]"
+          v-if="previewUrl"
+          :src="previewUrl"
           alt="Aperçu du cadeau"
           :class="imgClasses"
           @error="onImgError"
@@ -129,7 +129,7 @@ const emit: {
 const hidePreview: Ref<boolean> = ref(false)
 const previewUrl: ComputedRef<string | null> = computed<string | null>(() => {
   if (hidePreview.value) return null
-  const first: string | null = props.gift.images.length ? props.gift.images[0] : null
+  const first: string | undefined = props.gift.images && props.gift.images.length > 0 ? props.gift.images[0] : undefined
   return first || null
 })
 

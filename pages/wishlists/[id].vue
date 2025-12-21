@@ -46,23 +46,13 @@
 
   <!-- Floating Create Gift Button -->
   <div v-if="canManage" class="fixed bottom-8 right-8 z-40">
-    <WishlyButton variant="primary" size="lg" @click="openCreate()" aria-label="Ajouter un cadeau">
+    <WishlyButton variant="primary" size="lg" @click="openCreate()">
       <WishlyIcon name="material-symbols:add-rounded" class="text-white" />
-      <span class="ml-2 hidden md:inline">Ajouter un cadeau</span>
     </WishlyButton>
   </div>
 
-  <!-- Create/Update Modal -->
   <Modal :open="modalOpen" :title="modalTitle" :closeOnBackdrop="true" @close="closeModal">
     <GiftForm ref="formRef" :initialValues="formData" @submit="onSubmitForm" />
-    <template #footer>
-      <div class="ml-auto flex items-center gap-2">
-        <WishlyButton variant="ghost" size="sm" @click="closeModal">Annuler</WishlyButton>
-        <WishlyButton variant="primary" size="sm" :loading="submitting" @click="triggerFormSubmit"
-          >Valider</WishlyButton
-        >
-      </div>
-    </template>
   </Modal>
 
   <!-- Confirm Delete Modal -->
@@ -82,7 +72,7 @@ import { onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute } from '#app'
 import { useGifts } from '~/composables/useGifts'
-import type { Gift, GiftVisibility } from '~/composables/useGifts'
+import type { Gift } from '~/composables/useGifts'
 import { useToast } from '~/composables/useToast'
 import { useWishlists } from '~/composables/useWishlists'
 import WishlyButton from '~/components/input/WishlyButton.vue'
@@ -100,6 +90,7 @@ const route: RouteLocationNormalizedLoadedGeneric = useRoute()
 
 const wishlistId: string = String(route.params.id)
 
+// const { items, loading, error, list, create, update, remove } = useGifts()
 const { items, loading, error, list, create, update, remove } = useGifts()
 const { checkOwner } = useWishlists()
 const { success, error: errorToast } = useToast()
@@ -123,36 +114,21 @@ const checkOwnership: () => Promise<void> = async () => {
 }
 
 /**
- * Gift form state
- * @typedef {Object} GiftFormData
- * @property {string} name - Name of the gift
- * @property {string} description - Description of the gift
- * @property {number|null} price - Price of the gift
- * @property {string[]} images - Array of image URLs
- * @property {string[]} tags - Array of tags
- * @property {string|null} url - URL of the gift
- * @property {GiftVisibility} visibility - Visibility of the gift
+ * Gift form data (must match GiftFormValues from GiftForm.vue)
+ * Type for handling form submission and state
  */
-type GiftFormData = {
-  name: string
-  description: string
-  price: number | null
-  images: string[]
-  tags: string[]
-  url: string | null
-  visibility: GiftVisibility
-}
+type GiftFormData = Omit<Gift, 'id' | 'createdAt' | 'updatedAt'>
 
 const modalOpen: Ref<boolean> = ref(false)
 const modalTitle: Ref<string> = ref('Ajouter un cadeau')
-const submitting: Ref<boolean> = ref(false)
 const formData: Ref<GiftFormData> = ref({
   name: '',
   description: '',
-  price: null,
+  price: undefined,
   images: [],
   tags: [],
   url: null,
+  wishlistId: '',
   visibility: 'PUBLIC',
 })
 const editingId: Ref<string | null> = ref(null)
@@ -164,7 +140,16 @@ const formRef: Ref<InstanceType<typeof GiftForm> | null> = ref(null)
  */
 const openCreate: () => void = () => {
   modalTitle.value = 'Ajouter un cadeau'
-  formData.value = { name: '', description: '', price: null, images: [], tags: [], url: null, visibility: 'PRIVATE' }
+  formData.value = {
+    name: '',
+    description: '',
+    price: undefined,
+    images: [],
+    tags: [],
+    url: null,
+    wishlistId: '',
+    visibility: 'PUBLIC',
+  }
   editingId.value = null
   modalOpen.value = true
 }
@@ -177,12 +162,13 @@ const openCreate: () => void = () => {
 const openEdit: (g: Gift) => void = (g: Gift) => {
   modalTitle.value = 'Modifier le cadeau'
   formData.value = {
-    name: g.name || '',
-    description: g.description || '',
-    price: g.price ?? null,
-    images: g.images,
-    tags: g.tags,
+    name: g.name,
+    description: g.description ?? '',
+    price: g.price,
+    images: g.images ?? [],
+    tags: g.tags ?? [],
     url: g.url ?? null,
+    wishlistId: g.wishlistId,
     visibility: g.visibility,
   }
   editingId.value = String(g.id)
@@ -201,59 +187,53 @@ const closeModal: () => void = () => {
  * Handle form submit
  * @param payload - Gift form data
  */
-const onSubmitForm: (payload: GiftFormData) => void = (payload: GiftFormData) => {
-  formData.value = payload
-}
+const onSubmitForm: (payload: GiftFormData) => Promise<void> = async (payload: GiftFormData): Promise<void> => {
+  const nameVal: string = payload.name.trim()
+  if (!nameVal) {
+    errorToast('Le nom du cadeau est requis', 3000)
+    return
+  }
 
-/**
- * Trigger form submission
- * @return {Promise<void>}
- */
-const triggerFormSubmit: () => Promise<void> = async () => {
-  formRef.value?.submit?.()
-
-  const nameVal: string = formData.value.name.trim()
-  const visVal: string = formData.value.visibility.toString().trim()
-  if (!nameVal || !visVal) return
-
-  submitting.value = true
   try {
     if (editingId.value) {
+      // Update existing gift
       const res: { success: boolean; data?: Gift; error?: string } = await update(editingId.value, {
         name: nameVal,
-        description: formData.value.description,
-        price: formData.value.price ?? null,
-        images: formData.value.images,
-        tags: formData.value.tags,
-        url: formData.value.url,
-        visibility: formData.value.visibility,
+        description: payload.description,
+        price: payload.price,
+        images: payload.images,
+        tags: payload.tags,
+        url: payload.url,
+        visibility: payload.visibility,
       })
       if (res.success) {
-        success('Cadeau mis à jour', 3000)
+        success('Cadeau mis à jour avec succès', 3000)
         closeModal()
+        await list(wishlistId)
       } else if (res.error) {
         errorToast(res.error, 3000)
       }
     } else {
+      // Create new gift
       const res: { success: boolean; data?: Gift; error?: string } = await create(wishlistId, {
         name: nameVal,
-        description: formData.value.description,
-        price: formData.value.price ?? null,
-        images: formData.value.images,
-        tags: formData.value.tags,
-        url: formData.value.url,
-        visibility: formData.value.visibility,
+        description: payload.description,
+        price: payload.price,
+        images: payload.images,
+        tags: payload.tags,
+        url: payload.url,
+        visibility: payload.visibility,
       })
       if (res.success) {
-        success('Cadeau créé', 3000)
+        success('Cadeau créé avec succès', 3000)
         closeModal()
-        list(wishlistId)
+        await list(wishlistId)
       } else if (res.error) {
         errorToast(res.error, 3000)
       }
     }
-  } finally {
-    submitting.value = false
+  } catch {
+    errorToast('Une erreur est survenue', 3000)
   }
 }
 

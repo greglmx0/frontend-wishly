@@ -24,12 +24,12 @@ export type GiftVisibility = 'PUBLIC' | 'DISABLED' | 'PRIVATE'
  * @property updatedAt - Last update timestamp (optional)
  */
 export type Gift = {
-  id: string
+  id?: string
   name: string
-  description: string
-  price: number | null
-  images: string[]
-  tags: string[]
+  description?: string
+  price?: number
+  images?: string[]
+  tags?: string[]
   url: string | null
   wishlistId: string
   visibility: GiftVisibility
