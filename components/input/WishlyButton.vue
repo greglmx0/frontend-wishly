@@ -1,7 +1,7 @@
 <template>
   <component
     :is="isLink ? NuxtLink : 'button'"
-    v-bind="bindAttrs"
+    v-bind="componentAttrs"
     :aria-busy="loading ? 'true' : 'false'"
     :class="[baseClasses, sizeClasses, variantClasses, blockClasses, iconOnlyClasses, loading ? 'cursor-wait' : '']"
     @click="onClickHandler"
@@ -25,17 +25,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { NuxtLink } from '#components'
 import type { ComputedRef } from 'vue'
 
 const isLink: ComputedRef<boolean> = computed(() => !!props.href)
 
-const bindAttrs: ComputedRef<Record<string, unknown>> = computed(() => {
+const attrs: Record<string, unknown> = useAttrs()
+
+const componentAttrs: ComputedRef<Record<string, unknown>> = computed(() => {
   if (isLink.value) {
-    return { to: props.href }
+    // Forward all attrs (like target, rel, aria-*) and map href -> to for NuxtLink
+    return { ...attrs, to: props.href ?? undefined }
   }
-  return { type: props.type, disabled: props.disabled || props.loading }
+
+  return {
+    ...attrs,
+    type: props.type,
+    disabled: props.disabled || props.loading,
+  }
 })
 
 const onClickHandler: ComputedRef<((ev: MouseEvent) => void) | undefined> = computed(() =>
